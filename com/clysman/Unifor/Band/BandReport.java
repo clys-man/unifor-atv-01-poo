@@ -13,7 +13,7 @@ public class BandReport {
     }
 
     public void generate() {
-        // TO-DO: Each variable should be a private function of report
+        // TODO: Each variable should be a private function of report
         System.out.println("--- Relatorio ---");
 
         int bandsWith5MembersCount = this.bandRespository.where(band -> band.members() == 5).count();
@@ -38,5 +38,10 @@ public class BandReport {
                 .where(band -> band.members() > 0)
                 .get().stream().mapToInt(Band::members).sum();
         System.out.println("Soma de todos os integrantes das bandas: " + sumMembersOfAllBands);
+
+        int mostShowsBandsCount  = this.bandRespository
+                .where(band -> band.members() > 1 && band.showsQty() > 33)
+                .count();
+        System.out.println("Bandas que possuem mais de um integrante e fizeram mais que 33 show: " + mostShowsBandsCount);
     }
 }
