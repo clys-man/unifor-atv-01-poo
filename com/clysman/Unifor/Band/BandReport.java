@@ -30,7 +30,6 @@ public class BandReport {
 
         Band soloWithMostGain = this.bandRespository
                 .where(band -> band.members() == 1)
-                .sort(this.comparator, "desc")
                 .first();
         System.out.println("Banda, que contém um único integrante, que obteve o maior lucro: " + soloWithMostGain.name());
     }

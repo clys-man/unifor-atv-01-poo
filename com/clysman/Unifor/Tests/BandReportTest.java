@@ -12,7 +12,7 @@ public class BandReportTest {
         bandRespository.add(new Band("Lenine", "MPB", 1, 32000, 15));
         bandRespository.add(new Band("Oasis", "Rock", 5, 62000, 45));
         bandRespository.add(new Band("Rubel", "Folk", 1, 33000, 20));
-        bandRespository.add(new Band("Aerosmith", "Rock", 5, 42000, 15));
+        bandRespository.add(new Band("Aerosmith", "Rock", 5, 42000, 34));
 
         BandReport bandReport = new BandReport(bandRespository);
         bandReport.generate();

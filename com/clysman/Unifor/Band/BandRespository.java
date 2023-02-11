@@ -10,9 +10,10 @@ import java.util.stream.Collectors;
 public class BandRespository {
     private final List<Band> bands = new ArrayList<>();
 
-    private List<Band> partialBands = new ArrayList<>();
+    private List<Band> partialBands;
 
     public BandRespository() {
+        this.partialBands = bands;
     }
 
     public void add(Band band) {
@@ -32,12 +33,8 @@ public class BandRespository {
             comparator = comparator.reversed();
         }
 
-        if (this.partialBands.isEmpty()) {
-            this.partialBands = this.bands;
-        }
-
         this.bands.sort(comparator);
-        this.partialBands.sort(comparator);
+        this.partialBands = this.bands;
 
         return this;
     }
