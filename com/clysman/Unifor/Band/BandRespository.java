@@ -32,8 +32,12 @@ public class BandRespository {
             comparator = comparator.reversed();
         }
 
+        if (this.partialBands.isEmpty()) {
+            this.partialBands = this.bands;
+        }
+
         this.bands.sort(comparator);
-        this.partialBands = this.bands;
+        this.partialBands.sort(comparator);
 
         return this;
     }

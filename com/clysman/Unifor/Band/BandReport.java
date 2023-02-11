@@ -1,6 +1,7 @@
 package com.clysman.Unifor.Band;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class BandReport {
     protected BandRespository bandRespository;
@@ -14,19 +15,23 @@ public class BandReport {
     public void generate() {
         System.out.println("--- Relatorio ---");
 
-        int bandsWith5Members = this.bandRespository.where(band -> band.members() == 5).count();
-        System.out.println("Quantidade de bandas com cinco integrantes: " + bandsWith5Members);
+        int bandsWith5MembersCount = this.bandRespository.where(band -> band.members() == 5).count();
+        System.out.println("Quantidade de bandas com cinco integrantes: " + bandsWith5MembersCount);
 
-        int indieBands = this.bandRespository.where(
-                band -> band.type().equalsIgnoreCase("indie")
-        ).count();
-        System.out.println("Quantidade de bandas do tipo Indie: " + indieBands);
+        int indieBandsCount = this.bandRespository
+                .where(band -> band.type().equalsIgnoreCase("indie"))
+                .count();
+        System.out.println("Quantidade de bandas do tipo Indie: " + indieBandsCount);
 
         this.comparator = Comparator.comparingDouble(Band::gain);
-        Band bandWithMostGain = this.bandRespository.sort(this.comparator, "desc").first();
-        System.out.println("Banda com maior lucro: " + bandWithMostGain.name());
+        List<Band> bandsOrdered = this.bandRespository.sort(this.comparator, "desc").get();
+        System.out.println("Banda com maior lucro: " + bandsOrdered.get(0).gain());
+        System.out.println("Banda com menor lucro: " + bandsOrdered.get(bandsOrdered.size() - 1).gain());
 
-        Band bandWithMinusGain = this.bandRespository.sort(this.comparator, "asc").first();
-        System.out.println("Banda com menor lucro: " + bandWithMinusGain.name());
+        Band soloWithMostGain = this.bandRespository
+                .where(band -> band.members() == 1)
+                .sort(this.comparator, "desc")
+                .first();
+        System.out.println("Banda, que contém um único integrante, que obteve o maior lucro: " + soloWithMostGain.name());
     }
 }
