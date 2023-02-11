@@ -4,7 +4,7 @@ import com.clysman.Unifor.Band.Band;
 import com.clysman.Unifor.Band.BandReport;
 import com.clysman.Unifor.Band.BandRespository;
 
-public class BandStatisticTest {
+public class BandReportTest {
     public static void main(String[] args) {
         BandRespository bandRespository = new BandRespository();
         bandRespository.add(new Band("meio", "Indie", 3, 1234.50, 6));
