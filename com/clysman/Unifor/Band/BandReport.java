@@ -1,7 +1,10 @@
 package com.clysman.Unifor.Band;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 public class BandReport {
     protected BandRespository bandRespository;
@@ -43,5 +46,14 @@ public class BandReport {
                 .where(band -> band.members() > 1 && band.showsQty() > 33)
                 .count();
         System.out.println("Bandas que possuem mais de um integrante e fizeram mais que 33 show: " + mostShowsBandsCount);
+
+        List<Band> allBandsWithGains = this.bandRespository
+                .where(band -> band.gain() > 0)
+                .get();
+        double sumOfGains = allBandsWithGains.stream().mapToDouble(Band::gain).sum();
+        double avgOfGains = BigDecimal.valueOf(sumOfGains/allBandsWithGains.size())
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+        System.out.println("Média do lucro: R$" + avgOfGains);
     }
 }
