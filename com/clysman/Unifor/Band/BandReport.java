@@ -32,10 +32,19 @@ public class BandReport {
         System.out.println("Banda com maior lucro: " + bandsOrdered.get(0).gain());
         System.out.println("Banda com menor lucro: " + bandsOrdered.get(bandsOrdered.size() - 1).gain());
 
+
         Band soloWithMostGain = this.bandRespository
                 .where(band -> band.members() == 1)
                 .first();
         System.out.println("Banda, que contém um único integrante, que obteve o maior lucro: " + soloWithMostGain.name());
+
+        this.comparator = Comparator.comparingInt(Band::showsQty);
+        Band bandWithLessShow = this.bandRespository
+                .where(band -> band.showsQty() >= 0)
+                .sort(comparator, "asc")
+                .first();
+        System.out.println("Banda que fez menos show: " + bandWithLessShow.name());
+
 
         int sumMembersOfAllBands = this.bandRespository
                 .where(band -> band.members() > 0)
