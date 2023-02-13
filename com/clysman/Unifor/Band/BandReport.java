@@ -4,65 +4,90 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.DoubleStream;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class BandReport {
     protected BandRespository bandRespository;
-
-    protected Comparator<Band> comparator;
 
     public BandReport(BandRespository bandRespository) {
         this.bandRespository = bandRespository;
     }
 
     public void generate() {
-        // TODO: Each variable should be a private function of report
         System.out.println("--- Relatorio ---");
 
-        int bandsWith5MembersCount = this.bandRespository.where(band -> band.members() == 5).count();
-        System.out.println("Quantidade de bandas com cinco integrantes: " + bandsWith5MembersCount);
+        int bandsWith5Members = this.countBandsWhere(band -> band.members() == 5);
+        System.out.println("Quantidade de bandas com cinco integrantes: " + bandsWith5Members);
 
-        int indieBandsCount = this.bandRespository
-                .where(band -> band.type().equalsIgnoreCase("indie"))
-                .count();
-        System.out.println("Quantidade de bandas do tipo Indie: " + indieBandsCount);
+        int indieBands = this.countBandsWhere(band -> band.type().equalsIgnoreCase("indie"));
+        System.out.println("Quantidade de bandas do tipo Indie: " + indieBands);
 
-        this.comparator = Comparator.comparingDouble(Band::gain);
-        List<Band> bandsOrdered = this.bandRespository.sort(this.comparator, "desc").get();
-        System.out.println("Banda com maior lucro: " + bandsOrdered.get(0).gain());
-        System.out.println("Banda com menor lucro: " + bandsOrdered.get(bandsOrdered.size() - 1).gain());
+        List<Band> bandsOrderedByGains = getBandsOrdered();
+        System.out.println("Banda com maior lucro: " + bandsOrderedByGains.get(0).gain());
+        System.out.println("Banda com menor lucro: " + bandsOrderedByGains.get(bandsOrderedByGains.size() - 1).gain());
 
-
-        Band soloWithMostGain = this.bandRespository
-                .where(band -> band.members() == 1)
-                .first();
+        Band soloWithMostGain = bandsOrderedByGains.stream().filter(band -> band.members() == 1).findFirst().get();
         System.out.println("Banda, que contém um único integrante, que obteve o maior lucro: " + soloWithMostGain.name());
 
-        this.comparator = Comparator.comparingInt(Band::showsQty);
-        Band bandWithLessShow = this.bandRespository
+        Band bandWithLessShow = getBandWithLessShow();
+        System.out.println("Banda que fez menos show: " + bandWithLessShow.name());
+
+        int bandMembersSum = sumMembersOfAllBands();
+        System.out.println("Soma de todos os integrantes das bandas: " + bandMembersSum);
+
+        int mostShowsBandCount = countBandsWhere(band -> band.members() > 1 && band.showsQty() > 33);
+        System.out.println("Bandas que possuem mais de um integrante e fizeram mais que 33 show: " + mostShowsBandCount);
+
+        double bandGainAvg = avgOfGains();
+        System.out.println("Média do lucro: R$" + bandGainAvg);
+    }
+
+    private int countBandsWhere(Predicate<? super Band> condition) {
+        return this.bandRespository.where(condition).count();
+    }
+
+    private List<Band> getBandsWhere(Predicate<? super Band> condition) {
+        return this.bandRespository.where(condition).get();
+    }
+
+    private List<Band> getBandsOrdered() {
+        Comparator<Band> comparator = Comparator.comparingDouble(Band::gain);
+
+        return this.bandRespository.sort(comparator, "desc").get();
+    }
+
+    private Band getSoloWithMostGain() {
+        Comparator<Band> comparator = Comparator.comparingDouble(Band::gain);
+
+        return this.bandRespository
+                .where(band -> band.members() == 1)
+                .sort(comparator, "desc")
+                .first();
+    }
+
+    private Band getBandWithLessShow() {
+        Comparator<Band> comparator = Comparator.comparingInt(Band::showsQty);
+
+        return this.bandRespository
                 .where(band -> band.showsQty() >= 0)
                 .sort(comparator, "asc")
                 .first();
-        System.out.println("Banda que fez menos show: " + bandWithLessShow.name());
+    }
 
+    private int sumMembersOfAllBands() {
+        return this.getBandsWhere(band -> band.members() >= 0)
+                .stream()
+                .mapToInt(Band::members)
+                .sum();
+    }
 
-        int sumMembersOfAllBands = this.bandRespository
-                .where(band -> band.members() > 0)
-                .get().stream().mapToInt(Band::members).sum();
-        System.out.println("Soma de todos os integrantes das bandas: " + sumMembersOfAllBands);
+    private double avgOfGains() {
+        List<Band> bandsWithgains = this.getBandsWhere(band -> band.gain() > 0);
+        double sumOfGains = bandsWithgains.stream().mapToDouble(Band::gain).sum();
 
-        int mostShowsBandsCount  = this.bandRespository
-                .where(band -> band.members() > 1 && band.showsQty() > 33)
-                .count();
-        System.out.println("Bandas que possuem mais de um integrante e fizeram mais que 33 show: " + mostShowsBandsCount);
-
-        List<Band> allBandsWithGains = this.bandRespository
-                .where(band -> band.gain() > 0)
-                .get();
-        double sumOfGains = allBandsWithGains.stream().mapToDouble(Band::gain).sum();
-        double avgOfGains = BigDecimal.valueOf(sumOfGains/allBandsWithGains.size())
+        return BigDecimal.valueOf(sumOfGains/bandsWithgains.size())
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
-        System.out.println("Média do lucro: R$" + avgOfGains);
     }
 }
