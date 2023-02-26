@@ -84,9 +84,14 @@ public class BandReport {
 
     private double avgOfGains() {
         List<Band> bandsWithgains = this.getBandsWhere(band -> band.gain() > 0);
+        int size = bandsWithgains.size();
         double sumOfGains = bandsWithgains.stream().mapToDouble(Band::gain).sum();
 
-        return BigDecimal.valueOf(sumOfGains/bandsWithgains.size())
+        if (size == 0) {
+            return 0;
+        }
+
+        return BigDecimal.valueOf(sumOfGains/size)
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
     }
